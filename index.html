@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>INCOIS | Safe Ocean Hazard Platform</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+
+    <!-- LOGIN OVERLAY -->
+    <div id="login-overlay">
+        <div class="login-card">
+            <div class="login-logo">🌊</div>
+            <h2>INCOIS</h2>
+            <p>Safe Ocean Hazard Platform</p>
+            <p class="subtitle">Select your role</p>
+
+            <div class="role-buttons">
+                <button type="button" class="role-btn citizen" data-role="Citizen">👤 Citizen</button>
+                <button type="button" class="role-btn analyst" data-role="Analyst">📊 Analyst</button>
+                <button type="button" class="role-btn admin" data-role="Admin">🔧 Admin</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTH MODAL -->
+    <div id="auth-modal" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-content">
+            <button type="button" class="close" id="close-auth" aria-label="Close">&times;</button>
+            <h3>Login</h3>
+
+            <div class="form-group">
+                <label for="user-email">Email</label>
+                <input type="email" id="user-email" autocomplete="email" required />
+            </div>
+
+            <div class="form-group">
+                <label for="user-pass">Password</label>
+                <input type="password" id="user-pass" autocomplete="current-password" required />
+            </div>
+
+            <button type="button" class="btn-primary" id="login-btn">Continue</button>
+        </div>
+    </div>
+
+    <!-- SUCCESS OVERLAY -->
+    <div id="success-overlay" class="success-overlay hidden">
+        <div class="success-card">
+            <div class="success-icon">✓</div>
+            <h3>Success</h3>
+            <p id="success-msg"></p>
+            <button type="button" class="btn-primary" id="success-close">Continue</button>
+        </div>
+    </div>
+
+    <!-- IMAGE / VIDEO VIEWER -->
+    <div id="image-viewer" class="viewer-modal hidden">
+        <button type="button" class="viewer-close" id="viewer-close" aria-label="Close">&times;</button>
+        <div id="viewer-content"></div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <!-- APP ROOT -->
+    <div id="app-root" class="hidden">
+
+        <!-- SIDEBAR -->
+        <nav class="sidebar" id="sidebar-nav">
+            <div class="sidebar-header">
+                <h1>🌊 INCOIS</h1>
+                <div class="user-info">
+                    <p id="email-display">Not logged in</p>
+                    <span id="role-badge" class="role-badge">Citizen</span>
+                </div>
+            </div>
+
+            <ul class="nav-list">
+                <li class="nav-item" data-route="home">🏠 Home</li>
+                <li class="nav-item" data-route="dashboard">📊 Dashboard</li>
+                <li class="nav-item" data-route="alerts">🚨 Alerts</li>
+                <li class="nav-item" data-route="report">📝 Report</li>
+                <li class="nav-item" data-route="gallery">🖼️ Gallery</li>
+                <li class="nav-item" data-route="analysis">📈 Analysis</li>
+                <li class="nav-item" data-route="inbox">📬 Inbox</li>
+                <li class="nav-item" data-route="bulletin">📰 Bulletin</li>
+                <li class="nav-item" data-route="profile">👤 Profile</li>
+                <li class="nav-item" data-route="about">ℹ️ About</li>
+                <li class="nav-item" data-route="contact">📞 Contact</li>
+                <li class="nav-item logout" id="logout-btn">🚪 Logout</li>
+            </ul>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <main id="main-content" class="main-content">
+
+            <!-- HOME -->
+            <section id="home" class="active">
+                <div class="section-header">
+                    <h2>Welcome to Safe Ocean</h2>
+                    <p>Monitor and report ocean hazards in real time.</p>
+                </div>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📍</div>
+                        <h3>Real-time Monitoring</h3>
+                        <p>Track hazards across Indian Ocean</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🚨</div>
+                        <h3>Instant Alerts</h3>
+                        <p>Get notified of critical events</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>Analytics</h3>
+                        <p>Data-driven insights & trends</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DASHBOARD -->
+            <section id="dashboard">
+                <div class="section-header">
+                    <h2>Dashboard</h2>
+                    <p>Overview of ocean hazards and reports</p>
+                </div>
+
+                <div class="stats-container">
+                    <div class="stat-box">
+                        <div class="stat-icon">📋</div>
+                        <h4>Total Reports</h4>
+                        <p id="total-reports">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">✓</div>
+                        <h4>Approved</h4>
+                        <p id="approved-count">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-icon">🚨</div>
+                        <h4>Active Alerts</h4>
+                        <p id="active-alerts">0</p>
+                    </div>
+                </div>
+
+                <div class="map-container">
+                    <div id="map"></div>
+                </div>
+            </section>
+
+            <!-- ALERTS -->
+            <section id="alerts">
+                <div class="section-header">
+                    <h2>🚨 Active Alerts</h2>
+                    <p>Critical ocean hazard notifications</p>
+                </div>
+                <div id="alerts-list" class="alerts-list"></div>
+            </section>
+
+            <!-- REPORT -->
+            <section id="report">
+                <div class="section-header">
+                    <h2>📝 Submit Hazard Report</h2>
+                    <p>Submit evidence of ocean hazards</p>
+                </div>
+
+                <form class="report-form">
+                    <div class="form-group">
+                        <label for="hType">Hazard Type *</label>
+                        <select id="hType" required>
+                            <option value="">Select hazard type</option>
+                            <option value="Cyclone">🌪️ Cyclone</option>
+                            <option value="Tsunami">🌊 Tsunami</option>
+                            <option value="Storm Surge">⛈️ Storm Surge</option>
+                            <option value="Oil Spill">🛢️ Oil Spill</option>
+                            <option value="Other">❓ Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hDesc">Description *</label>
+                        <textarea id="hDesc" placeholder="Detailed description (min 10 chars)" required minlength="10"></textarea>
+                        <small id="desc-counter">0/500</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hMedia">Evidence (Image/Video) *</label>
+                        <input type="file" id="hMedia" accept="image/*,video/*" required />
+                        <small>Max 10MB, supported: JPG, PNG, MP4</small>
+                    </div>
+
+                    <button type="button" class="btn-primary" id="submit-report-btn">Submit Report</button>
+                </form>
+            </section>
+
+            <!-- GALLERY -->
+            <section id="gallery">
+                <div class="section-header">
+                    <h2>🖼️ Gallery</h2>
+                    <div class="gallery-controls">
+                        <input type="search" id="gallery-search" placeholder="Search gallery..." />
+                    </div>
+                </div>
+                <div id="gallery-grid" class="gallery-grid"></div>
+            </section>
+
+            <!-- ANALYSIS -->
+            <section id="analysis">
+                <div class="section-header">
+                    <h2>📈 Analysis</h2>
+                    <p>Statistical insights and trends</p>
+                </div>
+                <div id="analysis-content" class="analysis-content"></div>
+            </section>
+
+            <!-- INBOX -->
+            <section id="inbox">
+                <div class="section-header">
+                    <h2>📬 Inbox</h2>
+                    <p>Your messages and notifications</p>
+                </div>
+                <div id="inbox-list" class="inbox-list"></div>
+            </section>
+
+            <!-- BULLETIN -->
+            <section id="bulletin">
+                <div class="section-header">
+                    <h2>📰 Bulletin</h2>
+                    <p>Official updates and announcements</p>
+                </div>
+                <div id="bulletin-list" class="bulletin-list"></div>
+            </section>
+
+            <!-- PROFILE -->
+            <section id="profile">
+                <div class="section-header">
+                    <h2>👤 Profile</h2>
+                    <p>Manage your account settings</p>
+                </div>
+
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar">👤</div>
+                        <div class="profile-info">
+                            <p><strong>Email:</strong> <span id="profile-email"></span></p>
+                            <p><strong>Role:</strong> <span id="profile-role"></span></p>
+                        </div>
+                    </div>
+                    <div class="profile-body">
+                        <div class="form-group">
+                            <label for="profile-name">Full Name</label>
+                            <input type="text" id="profile-name" />
+                        </div>
+                        <button type="button" class="btn-primary" id="save-profile-btn">Save Changes</button>
+                        <button type="button" class="btn-danger" id="delete-account-btn">Delete Account</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ABOUT -->
+            <section id="about">
+                <div class="section-header">
+                    <h2>ℹ️ About INCOIS</h2>
+                </div>
+                <div class="about-content">
+                    <p>Indian National Centre for Ocean Information Services (INCOIS) is dedicated to providing real-time ocean hazard monitoring and citizen reporting.</p>
+                </div>
+            </section>
+
+            <!-- CONTACT -->
+            <section id="contact">
+                <div class="section-header">
+                    <h2>📞 Contact Us</h2>
+                </div>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <strong>Email:</strong> <span id="contact-email"></span>
+                    </div>
+                    <div class="contact-item">
+                        <strong>Phone:</strong> <span id="contact-phone"></span>
+                    </div>
+                    <div class="contact-item">
+                        <strong>Address:</strong> <span id="contact-address"></span>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- SCRIPTS - Load in correct order -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/reports.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>
