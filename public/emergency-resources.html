@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HazardWatch Dashboard</title>
+
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="emergency-resources.css">
+
+<style>
+    /* Override emergency-resources inline styles with modern design */
+    .emergency-resources-section {
+        padding: var(--space-xl);
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .resources-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: var(--space-xl);
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--space-lg);
+    }
+
+    .section-header h2 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .services-container,
+    .contact-panel,
+    .guides-panel,
+    .emergency-kit-section {
+        background: var(--white);
+        padding: var(--space-xl);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        transition: all var(--transition-base);
+    }
+
+    .services-container:hover {
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Location Status */
+    #locationStatus {
+        padding: var(--space-lg);
+        background: var(--lighter);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--space-lg);
+        font-weight: 600;
+        color: var(--gray-dark);
+        text-align: center;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* Services Filter */
+    .services-filter {
+        display: flex;
+        gap: var(--space-sm);
+        margin-bottom: var(--space-lg);
+        flex-wrap: wrap;
+    }
+
+    .service-filter-btn {
+        padding: var(--space-sm) var(--space-md);
+        border: 2px solid var(--light);
+        background: var(--white);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--gray-dark);
+        transition: all var(--transition-fast);
+    }
+
+    .service-filter-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .service-filter-btn.active {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: var(--white);
+        border-color: var(--primary);
+        box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
+    }
+
+    /* Service Card */
+    .service-card {
+        padding: var(--space-lg);
+        border: 2px solid var(--light);
+        margin-bottom: var(--space-md);
+        border-radius: var(--radius-md);
+        background: var(--white);
+        transition: all var(--transition-base);
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: var(--space-md);
+    }
+
+    .service-card:hover {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .service-card-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    /* Service Card Styling */
+    .service-card h3 {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: var(--space-sm);
+    }
+
+    .service-card p {
+        font-size: 0.95rem;
+        color: var(--gray-dark);
+        margin: var(--space-xs) 0;
+    }
+
+    /* Phone Number Styling */
+    .service-phone {
+        display: inline-block;
+        padding: var(--space-sm) var(--space-md);
+        background: linear-gradient(135deg, rgba(69, 123, 157, 0.1) 0%, rgba(6, 214, 160, 0.1) 100%);
+        border-left: 4px solid var(--secondary);
+        border-radius: var(--radius-sm);
+        font-weight: 600;
+        color: var(--secondary);
+        font-size: 1rem;
+        margin: var(--space-md) 0;
+        font-family: var(--font-mono);
+    }
+
+    .service-phone a {
+        color: var(--secondary);
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .service-phone a:hover {
+        color: var(--secondary-dark);
+        text-decoration: underline;
+    }
+
+    .unavailable-phone {
+        color: var(--warning);
+        font-style: italic;
+        opacity: 0.8;
+    }
+
+    /* Location Pin Button */
+    .service-map-pin {
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: var(--white);
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
+        padding: 0;
+        margin-top: var(--space-xs);
+    }
+
+    .service-map-pin:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(230, 57, 70, 0.4);
+    }
+
+    .service-map-pin:active {
+        transform: translateY(0);
+    }
+
+    .service-map-pin svg {
+        display: block;
+    }
+
+    /* Buttons */
+    #refreshLocationBtn {
+        background: var(--lighter);
+        border: none;
+        border-radius: var(--radius-md);
+        padding: var(--space-sm) var(--space-md);
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all var(--transition-fast);
+    }
+
+    #refreshLocationBtn:hover {
+        background: var(--light);
+        transform: rotate(180deg);
+    }
+
+    .map-btn {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border: none;
+        color: var(--white);
+        padding: var(--space-sm) var(--space-md);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all var(--transition-base);
+        box-shadow: 0 4px 12px rgba(230, 57, 70, 0.3);
+    }
+
+    .map-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(230, 57, 70, 0.4);
+    }
+
+    /* Contact Item */
+    .contact-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--space-md) 0;
+        border-bottom: 1px solid var(--light);
+        font-size: 0.95rem;
+    }
+
+    .contact-item:last-child {
+        border-bottom: none;
+    }
+
+    /* Guides Container */
+    .guides-container ul {
+        padding-left: 1.5rem;
+        list-style-position: inside;
+    }
+
+    .guides-container li {
+        padding: var(--space-sm) 0;
+        color: var(--gray-dark);
+    }
+
+    /* Kit Items */
+    .kit-item {
+        padding: var(--space-md);
+        background: var(--lighter);
+        margin: var(--space-sm) 0;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        font-weight: 500;
+        border: 2px solid transparent;
+    }
+
+    .kit-item:hover {
+        background: var(--light);
+        border-color: var(--primary);
+    }
+
+    .kit-item.checked {
+        background: rgba(6, 214, 160, 0.1);
+        border-color: var(--success);
+        color: var(--success);
+    }
+
+    .kit-item.checked::before {
+        content: '✓';
+        font-weight: 700;
+    }
+
+    /* Progress Bar */
+    .progress-bar-bg {
+        height: 8px;
+        background: var(--light);
+        border-radius: 4px;
+        margin: var(--space-md) 0;
+        overflow: hidden;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--success) 0%, var(--accent) 100%);
+        border-radius: 4px;
+        width: 0%;
+        transition: width 0.5s ease-out;
+    }
+
+    /* Resources Sidebar */
+    .resources-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-lg);
+    }
+</style>
+
+</head>
+
+<body>
+
+<section class="emergency-resources-section" id="emergencyResourcesSection">
+
+<div class="resources-grid">
+
+<div class="services-container">
+
+<div class="section-header">
+<h2>Nearby Emergency Services</h2>
+<button id="refreshLocationBtn">🔄</button>
+</div>
+
+<div id="locationStatus">📍 Detecting location...</div>
+
+<div class="services-filter">
+<button class="service-filter-btn active" data-filter="all">All</button>
+<button class="service-filter-btn" data-filter="hospitals">🏥 Hospitals</button>
+<button class="service-filter-btn" data-filter="police">🚨 Police</button>
+<button class="service-filter-btn" data-filter="fire">🚒 Fire</button>
+<button class="service-filter-btn" data-filter="ngos">❤️ NGOs</button>
+<button class="service-filter-btn" data-filter="shelters">🏠 Shelters</button>
+</div>
+
+<div id="servicesList"></div>
+
+</div>
+
+
+<div class="resources-sidebar">
+
+<div class="contact-panel">
+
+<h3>📞 Emergency Contacts</h3>
+
+<div class="contact-item"><span>Emergency</span><span>112</span></div>
+<div class="contact-item"><span>Police</span><span>100</span></div>
+<div class="contact-item"><span>Fire</span><span>101</span></div>
+<div class="contact-item"><span>Ambulance</span><span>108</span></div>
+
+</div>
+
+
+<div class="guides-panel">
+
+<h3>🛡 Safety Guides</h3>
+<div id="guidesContainer"></div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="emergency-kit-section">
+
+<h2>Emergency Preparedness Kit</h2>
+
+<div>
+<span id="kitPercentage">0%</span>
+<div class="progress-bar-bg">
+<div class="progress-bar-fill" id="kitProgressBar"></div>
+</div>
+</div>
+
+<div id="kitChecklist"></div>
+
+<button id="downloadPdfBtn">Download Checklist</button>
+<button id="resetKitBtn">Reset</button>
+
+</div>
+
+</section>
+
+<script src="emergency-resources.js"></script>
+
+</body>
+</html>

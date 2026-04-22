@@ -1,0 +1,9 @@
+{
+  "name": "OceanGuardWorking",
+  "version": "1.0.0",
+  "description": "AI Disaster Monitoring Chatbot",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}
